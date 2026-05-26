@@ -1,0 +1,40 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: dashboard-backend
+      containers:
+        - name: backend
+          image: isuruchathushka/k8s-dashboard-backend:v1
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: dashboard
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 5000
+      targetPort: 5000
+  type: ClusterIP

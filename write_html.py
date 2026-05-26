@@ -1,0 +1,77 @@
+﻿f = open('frontend/index.html', 'w', encoding='utf-8')
+f.write("""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K8s Dashboard</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0}
+header{background:#1e293b;padding:20px 40px}
+h1{color:#38bdf8}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:30px 40px}
+.card{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
+.card h2{color:#38bdf8;margin-bottom:15px}
+.item{background:#0f172a;border-radius:8px;padding:12px;margin-bottom:10px}
+.name{font-weight:bold;font-size:14px}
+.meta{font-size:12px;color:#94a3b8;margin-top:4px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:bold;margin-top:6px}
+.Running{background:#064e3b;color:#34d399}
+.Ready{background:#064e3b;color:#34d399}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px 40px}
+.scard{background:#1e293b;border-radius:12px;padding:20px;text-align:center;border:1px solid #334155}
+.num{font-size:48px;font-weight:bold;color:#38bdf8}
+.lbl{font-size:14px;color:#94a3b8;margin-top:5px}
+</style>
+</head>
+<body>
+<header><h1>K8s Cluster Dashboard</h1></header>
+<div class="stats">
+<div class="scard"><div class="num" id="nc">-</div><div class="lbl">Nodes</div></div>
+<div class="scard"><div class="num" id="pc">-</div><div class="lbl">Pods</div></div>
+<div class="scard"><div class="num" id="dc">-</div><div class="lbl">Deployments</div></div>
+</div>
+<div class="grid">
+<div class="card"><h2>Nodes</h2><div id="nodes">Loading...</div></div>
+<div class="card"><h2>Deployments</h2><div id="deps">Loading...</div></div>
+<div class="card"><h2>Pods</h2><div id="pods">Loading...</div></div>
+</div>
+<script>
+var API = 'http://localhost:5001';
+function get(ep, cb) {
+  fetch(API+ep).then(function(r){return r.json();}).then(cb).catch(function(e){console.error(e);});
+}
+function load() {
+  get('/api/nodes', function(data) {
+    document.getElementById('nc').textContent = data.length;
+    var h = '';
+    for (var i=0; i<data.length; i++) {
+      h += '<div class="item"><div class="name">'+data[i].name+'</div><span class="badge Ready">Ready</span></div>';
+    }
+    document.getElementById('nodes').innerHTML = h;
+  });
+  get('/api/pods', function(data) {
+    document.getElementById('pc').textContent = data.length;
+    var h = '';
+    for (var i=0; i<data.length; i++) {
+      if (data[i].status === 'Running') {
+        h += '<div class="item"><div class="name">'+data[i].name+'</div><div class="meta">'+data[i].namespace+'</div><span class="badge Running">Running</span></div>';
+      }
+    }
+    document.getElementById('pods').innerHTML = h;
+  });
+  get('/api/deployments', function(data) {
+    document.getElementById('dc').textContent = data.length;
+    var h = '';
+    for (var i=0; i<data.length; i++) {
+      h += '<div class="item"><div class="name">'+data[i].name+'</div><div class="meta">'+data[i].namespace+'</div><span class="badge Running">'+(data[i].ready||0)+'/'+data[i].replicas+' Ready</span></div>';
+    }
+    document.getElementById('deps').innerHTML = h;
+  });
+}
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>""")
+f.close()
+print('Done!')
