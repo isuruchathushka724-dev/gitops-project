@@ -14,8 +14,10 @@ This project demonstrates how modern teams ship software: code is pushed to Git,
 
 ## 🧩 Architecture
 
+```
 Code Push → GitHub Actions → Docker Hub → ArgoCD → Kubernetes (KIND) → Grafana
-commit       build & push     registry     sync       run workloads    monitor
+   commit       build & push     registry     sync       run workloads    monitor
+```
 
 ## 🛠️ Tech Stack
 
@@ -29,6 +31,7 @@ commit       build & push     registry     sync       run workloads    monitor
 
 ## 📁 Project Structure
 
+```
 gitops-project/
 ├── .github/
 │   └── workflows/
@@ -47,6 +50,7 @@ gitops-project/
 │   └── rbac.yaml                  # Role-Based Access Control
 ├── write_html.py                  # Generates the frontend dashboard HTML
 └── README.md
+```
 
 ## ⚙️ CI/CD Pipeline
 
